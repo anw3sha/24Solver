@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -51,7 +52,7 @@ int calculateResult(int a, int b, char op) {
         return a * b;
     } else if (op == '/') {
         if (b != 0) {
-            return a / b;
+            return round((float)a / b);
         } else {
             return INT_MIN;
         }
@@ -62,50 +63,48 @@ int calculateResult(int a, int b, char op) {
 
 set<string> solver(int v, int w, int x, int y, int z){
     int nums[] = {v, w, x, y};
-    char ops[] = {'+', '-', '*', '/'};
+    char ops[] = {'+', '-', '*', '/'}; 
     set<string> solution;
     vector<vector<int> > numbers = swap1(nums);
     vector<vector<char> > operations = swap2(ops, 4, 3); // 4 operations, 3 slots
 
     for (size_t i = 0; i < numbers.size(); ++i){
         for (size_t j = 0; j < operations.size(); ++j){
-            int result = numbers[i][0];
+            float result = numbers[i][0];
             result = calculateResult(result, numbers[i][1], operations[j][0]);
             result = calculateResult(result, numbers[i][2], operations[j][1]);
             result = calculateResult(result, numbers[i][3], operations[j][2]);
-            if (result == INT_MIN) {continue;}
-            if (result == z){
-                string s = to_string(numbers[i][0]) + string(1, operations[j][0]) + 
-                to_string(numbers[i][1]) + string(1, operations[j][1]) + 
-                to_string(numbers[i][2]) + string(1, operations[j][2]) + 
-                to_string(numbers[i][3]);
 
-                solution.insert(s); // Use insert instead of push_back
+            if (result == z) {
+                string s = to_string(numbers[i][0]) +
+                           string(1, operations[j][0]) +
+                           to_string(numbers[i][1]) +
+                           string(1, operations[j][1]) +
+                           to_string(numbers[i][2]) +
+                           string(1, operations[j][2]) +
+                           to_string(numbers[i][3]);
+
+                solution.insert(s);
             }
         }
     }
-
-    return solution;
-
+    return solution; 
 }
 
 int main(){
-    int a;
-    int b;
-    int c;
-    int d;
-    int target;
-
+    int a, b, c, d, target;
     cout << "Enter four integers and then your target separated by a space: ";
-    cin >> a >> b >> c >> d >> target;
+    cin >> a >> b >> c >> d >> target; 
 
     set<string> solutions = solver(a,b,c,d,target);
-    string solution = "";
-    for (const string& s : solutions) {
-        solution += s + "\n";
+
+    if (solutions.empty()) {
+        cout << "No solutions found." << endl;
+    } else {
+        for (const string& s : solutions) {
+            cout << s << endl;
+        }
     }
-    vector<string> unique_solutions(solutions.begin(), solutions.end());
-    for (const string& s : unique_solutions) {
-        cout << s << endl;
-    }
+
+    return 0;
 }
