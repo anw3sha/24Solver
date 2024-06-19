@@ -1,109 +1,127 @@
-#include <set>
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include <set>
 #include <algorithm>
+#include <iterator>
 #include <cmath>
+#include <string>
+#include <stdexcept>
+#include <climits>
 
 using namespace std;
 
-vector<vector<int> > swap1(int arr[]){
-    vector<vector<int> > swaps;
-    for (size_t i = 0; i < 24; ++i){ // 4! = 24
-        next_permutation(arr, arr+4);
-        swaps.push_back(vector<int>(arr, arr+4));
+vector<vector<int> > generatePermutations(int arr[], int size){
+    sort(arr, arr + size);
+    vector<vector<int> > perms;
+    while (next_permutation(arr, arr + size)) {
+        perms.push_back(vector<int>(arr, arr + size));
     }
-    return swaps; 
+    return perms; 
 }
 
-vector<vector<char> > swap2(char ops[], int n, int r) {
+vector<vector<char> > generateCombinations(char ops[], int n, int r) {
     vector<vector<char> > combinations;
-    vector<char> combination(r);
-    int index[r];
-
-    for (int i = 0; i < r; i++)
-        index[i] = 0;
-
-    while (true) {
-        for (int i = 0; i < r; i++)
-            combination[i] = ops[index[i]];
-        combinations.push_back(combination);
-
-        int next = r - 1;
-        while (next >= 0 && (index[next] + 1 >= n))
-            next--;
-
-        if (next < 0)
-            return combinations;
-
-        index[next]++;
-
-        for (int i = next + 1; i < r; i++)
-            index[i] = 0;
-    }
-}
-
-int calculateResult(int a, int b, char op) {
-    if (op == '+') {
-        return a + b;
-    } else if (op == '-') {
-        return a - b;
-    } else if (op == '*') {
-        return a * b;
-    } else if (op == '/') {
-        if (b != 0) {
-            return round((float)a / b);
-        } else {
-            return INT_MIN;
+    vector<bool> v(n);
+    fill(v.begin(), v.begin() + r, true);
+    
+    while (prev_permutation(v.begin(), v.end())) {
+        vector<char> combination;
+        for(int i = 0; i < n; ++i) {
+            if (v[i]) {
+                combination.push_back(ops[i]);
+            }
         }
-    } else {
-        return INT_MIN;
+        combinations.push_back(combination);
     }
+    return combinations;
 }
 
-set<string> solver(int v, int w, int x, int y, int z){
-    int nums[] = {v, w, x, y};
-    char ops[] = {'+', '-', '*', '/'}; 
-    set<string> solution;
-    vector<vector<int> > numbers = swap1(nums);
-    vector<vector<char> > operations = swap2(ops, 4, 3); // 4 operations, 3 slots
+float calculate(float a, float b, char op) {
+    if (op == '+') return a + b;
+    if (op == '-') return a - b;
+    if (op == '*') return a * b;
+    if (op == '/') {
+        if (b == 0) {
+            throw domain_error("Division by zero");
+        } else {
+            return a / b;
+        }
+    }
+    throw invalid_argument("Invalid operator");
+}
 
-    for (size_t i = 0; i < numbers.size(); ++i){
-        for (size_t j = 0; j < operations.size(); ++j){
-            float result = numbers[i][0];
-            result = calculateResult(result, numbers[i][1], operations[j][0]);
-            result = calculateResult(result, numbers[i][2], operations[j][1]);
-            result = calculateResult(result, numbers[i][3], operations[j][2]);
+bool solve(const vector<int>& nums, const vector<char>& ops, int target, vector<string> &solutions) {
+    vector<vector<int> > numPerms = generatePermutations(const_cast<int*>(&nums[0]), nums.size());
+    vector<vector<char> > opCombs = generateCombinations(const_cast<char*>(&ops[0]), ops.size(), 3);
 
-            if (result == z) {
-                string s = to_string(numbers[i][0]) +
-                           string(1, operations[j][0]) +
-                           to_string(numbers[i][1]) +
-                           string(1, operations[j][1]) +
-                           to_string(numbers[i][2]) +
-                           string(1, operations[j][2]) +
-                           to_string(numbers[i][3]);
+    bool foundSolution = false;
 
-                solution.insert(s);
+    for (const auto &n : numPerms) {
+        for (const auto &o : opCombs) {
+            vector<string> expressions = {
+                "((" + to_string(n[0]) + " " + o[0] + " " + to_string(n[1]) + ") " + o[1] + " " + to_string(n[2]) + ") " + o[2] + " " + to_string(n[3]),
+                "(" + to_string(n[0]) + " " + o[0] + " (" + to_string(n[1]) + " " + o[1] + " " + to_string(n[2]) + ")) " + o[2] + " " + to_string(n[3]),
+                to_string(n[0]) + " " + o[0] + " ((" + to_string(n[1]) + " " + o[1] + " " + to_string(n[2]) + ") " + o[2] + " " + to_string(n[3]) + ")",
+                "(" + to_string(n[0]) + " " + o[0] + " " + to_string(n[1]) + ") " + o[1] + " (" + to_string(n[2]) + " " + o[2] + " " + to_string(n[3]) + ")",
+                to_string(n[0]) + " " + o[0] + " (" + to_string(n[1]) + " " + o[1] + " (" + to_string(n[2]) + " " + o[2] + " " + to_string(n[3]) + "))"
+            };
+
+            for (const auto &expr : expressions) {
+                try {
+                    // Calculate the value of the expression based on its structure
+                    float result;
+                    if (expr == expressions[0]) {
+                        result = calculate(calculate(calculate(n[0], n[1], o[0]), n[2], o[1]), n[3], o[2]);
+                    } else if (expr == expressions[1]) {
+                        result = calculate(calculate(n[0], calculate(n[1], n[2], o[1]), o[0]), n[3], o[2]);
+                    } else if (expr == expressions[2]) {
+                        result = calculate(n[0], calculate(calculate(n[1], n[2], o[1]), n[3], o[2]), o[0]);
+                    } else if (expr == expressions[3]) {
+                        result = calculate(calculate(n[0], n[1], o[0]), calculate(n[2], n[3], o[2]), o[1]);
+                    } else if (expr == expressions[4]) {
+                        result = calculate(n[0], calculate(n[1], calculate(n[2], n[3], o[2]), o[1]), o[0]);
+                    } else {
+                        continue; // Invalid expression structure
+                    }
+
+                    if (fabs(result - target) < 0.0001f) {
+                        solutions.push_back(expr + " = " + to_string(target));
+                        foundSolution = true;
+                    }
+                } catch (...) {
+                    continue; // Division by zero should not be an issue
+                }
             }
         }
     }
-    return solution; 
+    return foundSolution;
 }
 
-int main(){
-    int a, b, c, d, target;
-    cout << "Enter four integers and then your target separated by a space: ";
-    cin >> a >> b >> c >> d >> target; 
+int main() {
+    vector<int> nums(4);
+    cout << "Enter four integers: ";
+    for(int &num : nums) {
+        cin >> num;
+    }
+    
+    int target;
+    cout << "Enter the target result: ";
+    cin >> target;
 
-    set<string> solutions = solver(a,b,c,d,target);
+    vector<char> ops;
+    ops.push_back('+');
+    ops.push_back('-');
+    ops.push_back('*');
+    ops.push_back('/');
 
-    if (solutions.empty()) {
-        cout << "No solutions found." << endl;
-    } else {
+    vector<string> solutions;
+
+    if (solve(nums, ops, target, solutions)) {
         for (const string& s : solutions) {
             cout << s << endl;
         }
+    } else {
+        cout << "No solutions found." << endl;
     }
 
     return 0;
