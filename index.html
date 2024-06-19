@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px; 
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            max-height: 200px; /* Adjust max-height as needed */
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>24 Solver</h1>
+        <label for="num1">Number 1:</label>
+        <input type="number" id="num1" required>
+        <label for="num2">Number 2:</label>
+        <input type="number" id="num2" required>
+        <label for="num3">Number 3:</label>
+        <input type="number" id="num3" required>
+        <label for="num4">Number 4:</label>
+        <input type="number" id="num4" required>
+        <label for="target">Target Result:</label>
+        <input type="number" id="target" required>
+        <button onclick="generateSolutions()">Generate</button>
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        function generateSolutions() {
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+            const num3 = document.getElementById('num3').value;
+            const num4 = document.getElementById('num4').value;
+            const target = document.getElementById('target').value;
+
+            fetch('/generate_solutions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ num1, num2, num3, num4, target })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+                if (data.solutions.length > 0) {
+                    data.solutions.forEach(solution => {
+                        const p = document.createElement('p');
+                        p.textContent = solution;
+                        resultsDiv.appendChild(p);
+                    });
+                } else {
+                    resultsDiv.textContent = 'No solutions found.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.textContent = 'Error: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
