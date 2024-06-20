@@ -33,24 +33,29 @@ def generate_solutions():
     data = request.json
     print(f"Received data: {data}")  # Debug print
 
-    nums = [
-        int(data['num1']),
-        int(data['num2']),
-        int(data['num3']),
-        int(data['num4'])
-    ]
-    target = int(data['target'])
-
     try:
+        nums = [
+            int(data['num1']),
+            int(data['num2']),
+            int(data['num3']),
+            int(data['num4'])
+        ]
+        target = int(data['target'])
+
         solutions = solve_with_cpp(nums, target)
         print(f"Solutions: {solutions}")  # Debug print
         if solutions:
             return jsonify({'solutions': solutions})
         else:
             return jsonify({'solutions': ['No solutions found.']})
+    except ValueError as ve:
+        error_message = f"Invalid input: {str(ve)}"
+        print(f"Error: {error_message}")  # Debug print
+        return jsonify({'error': error_message}), 400  # Return HTTP 400 Bad Request
     except Exception as e:
-        print(f"Error: {e}")  # Debug print
-        return jsonify({'error': str(e)})
+        error_message = f"Internal server error: {str(e)}"
+        print(f"Error: {error_message}")  # Debug print
+        return jsonify({'error': error_message}), 500  # Return HTTP 500 Internal Server Error
 
 if __name__ == '__main__':
     app.run(debug=True)
