@@ -30,7 +30,7 @@ The `24-solver` project consists of several components:
 
 - **server.py**: Flask server script that handles the backend logic and serves the HTML templates.
 - **templates/**: Contains the HTML template (`index.html`) for the frontend interface of the application.
-- **static/**: Includes static files like `style.css`, which provides styling for the HTML templates.
+- **static/**: Includes static files like `style.css` and `script.js`, which provides styling for the HTML templates.
 - **24solver.cpp**: C++ program that generates mathematical solutions based on input data.
 - **input.txt**: Input file used by `24solver.cpp` to read the numbers and target result.
 - **requirements.txt**: File that includes all the dependencies necessary to run this code. A C++ compiler may be required if the solver needs to be recompiled. 
