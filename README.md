@@ -17,7 +17,7 @@ The 24 Solver is a web application that allows users to input four numbers and a
 ## Usage
 To run the application:
 1. Clone the repository.
-2. Install necessary dependencies.
+2. Install necessary dependencies (`requirements.txt` and a C++ compiler if changes are made to `24solver.cpp`).
 3. Start the Flask server with `python server.py`.
 4. Open your web browser and navigate to `http://localhost:5000` to use the application.
 
