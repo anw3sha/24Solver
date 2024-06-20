@@ -5,69 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>24 Solver</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <h1>24 Solver</h1>
         <label for="num1">Number 1:</label>
-        <input type="text" id="num1" required>
+        <input type="number" id="num1" required>
         <label for="num2">Number 2:</label>
-        <input type="text" id="num2" required>
+        <input type="number" id="num2" required>
         <label for="num3">Number 3:</label>
-        <input type="text" id="num3" required>
+        <input type="number" id="num3" required>
         <label for="num4">Number 4:</label>
-        <input type="text" id="num4" required>
+        <input type="number" id="num4" required>
         <label for="target">Target Result:</label>
-        <input type="text" id="target" required>
+        <input type="number" id="target" required>
         <button onclick="generateSolutions()">Generate</button>
         <div class="results" id="results"></div>
     </div>
-
-    <script>
-        function generateSolutions() {
-            const num1 = document.getElementById('num1').value.trim();
-            const num2 = document.getElementById('num2').value.trim();
-            const num3 = document.getElementById('num3').value.trim();
-            const num4 = document.getElementById('num4').value.trim();
-            const target = document.getElementById('target').value.trim();
-
-            // Validate inputs are integers
-            if (!isValidInput(num1) || !isValidInput(num2) || !isValidInput(num3) || !isValidInput(num4) || !isValidInput(target)) {
-                alert('Please enter valid integer numbers.');
-                return;
-            }
-
-            fetch('/generate_solutions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ num1: parseInt(num1), num2: parseInt(num2), num3: parseInt(num3), num4: parseInt(num4), target: parseInt(target) })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultsDiv = document.getElementById('results');
-                resultsDiv.innerHTML = '';
-                if (data.solutions.length > 0) {
-                    data.solutions.forEach(solution => {
-                        const p = document.createElement('p');
-                        p.textContent = solution;
-                        resultsDiv.appendChild(p);
-                    });
-                } else {
-                    resultsDiv.textContent = 'No solutions found.';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const resultsDiv = document.getElementById('results');
-                resultsDiv.textContent = 'Error: ' + error;
-            });
-        }
-
-        function isValidInput(value) {
-            return /^\d+$/.test(value);
-        }
-    </script>
 </body>
 </html>
