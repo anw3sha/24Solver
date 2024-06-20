@@ -4,7 +4,7 @@ import subprocess
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
-template_dir = os.path.join(current_dir, '.')
+template_dir = os.path.join(current_dir, 'templates')
 
 app = Flask(__name__, template_folder=template_dir)
 
